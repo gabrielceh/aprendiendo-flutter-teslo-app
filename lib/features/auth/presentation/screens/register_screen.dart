@@ -74,9 +74,11 @@ class _RegisterForm extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 50),
       child: Column(
         children: [
-          const SizedBox( height: 50 ),
+          // const SizedBox( height: 50 ),
+          const Spacer(),
           Text('Nueva cuenta', style: textStyles.titleMedium ),
-          const SizedBox( height: 50 ),
+          const Spacer(),
+          // const SizedBox( height: 50 ),
 
            CustomTextFormField(
             label: 'Nombre completo',
@@ -118,9 +120,7 @@ class _RegisterForm extends ConsumerWidget {
             child: CustomFilledButton(
               text: 'Crear',
               buttonColor: Colors.black,
-              onPressed: (){
-                ref.read(registerFormProvider.notifier).onSubmit();
-              },
+              onPressed: registerForm.isPosting ?  null : () => ref.read(registerFormProvider.notifier).onSubmit(),
             )
           ),
 

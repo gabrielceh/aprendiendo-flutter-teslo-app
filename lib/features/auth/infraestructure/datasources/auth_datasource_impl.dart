@@ -22,9 +22,31 @@ class AuthDataSourceImpl extends AuthDataSource {
   }
 
   @override
-  Future<User> checkoutStatus(String token) {
-    // TODO: implement checkoutStatus
-    throw UnimplementedError();
+  Future<User> checkoutStatus(String token) async{
+    try {
+      final response = await dio.get('/auth/check-status',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      final user = _fromJsonToUser(response.data);
+      print(user);
+      return user;
+    } on DioException catch (e) {
+      if(e.response?.statusCode == 401) {
+        throw CustomError(e.response?.data['message'] ?? 'Token no válido');
+      }
+      if(e.type == DioExceptionType.connectionTimeout) {
+        throw CustomError('Tiempo de conexión agotado, revisa tu conexión');
+      }
+      throw Exception();
+    }
+    catch (e) {
+      throw Exception();
+    }
   }
 
   @override
@@ -40,7 +62,7 @@ class AuthDataSourceImpl extends AuthDataSource {
     }
     on DioException catch (e) {
       if(e.response?.statusCode == 401) {
-        throw CustomError(e.response?.data['message'] ?? 'Wrong credentials');
+        throw CustomError(e.response?.data['message'] ?? 'Credenciales incorrectas');
       }
       if(e.type == DioExceptionType.connectionTimeout) {
         throw CustomError('Tiempo de conexión agotado, revisa tu conexión');

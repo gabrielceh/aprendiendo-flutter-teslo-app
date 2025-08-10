@@ -106,8 +106,8 @@ class RegisterFormNotifier extends StateNotifier<RegisterFormState>{
 
   onConfirmPasswordChanged(String value) {
     final newConfirmPassword = ConfirmPassword.dirty(
+      confirmPassword: value,
       password: state.password.value,
-      value: value
     );
     state = state.copyWith(
       confirmPassword: newConfirmPassword,
@@ -121,11 +121,15 @@ class RegisterFormNotifier extends StateNotifier<RegisterFormState>{
       _touchEveryField();
       return;
     }
+    state = state.copyWith(isPosting: true);
+
     registerUserCallback(
       email: state.email.value,
       password: state.password.value,
       fullName: state.fullName.value,
     );
+
+    state = state.copyWith(isPosting: false);
 
   }
 
@@ -136,7 +140,7 @@ class RegisterFormNotifier extends StateNotifier<RegisterFormState>{
     final fullName = TextInput.dirty(state.fullName.value);
     final confirmPassword = ConfirmPassword.dirty(
       password: state.password.value,
-      value: state.confirmPassword.value
+      confirmPassword: state.confirmPassword.value
     );
     state = state.copyWith(
       isFormPosted: true,

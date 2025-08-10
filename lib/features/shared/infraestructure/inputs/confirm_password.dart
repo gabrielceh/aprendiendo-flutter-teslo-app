@@ -3,10 +3,10 @@ import 'package:formz/formz.dart';
 enum ConfirmPasswordValidationError { mismatch }
 
 class ConfirmPassword extends FormzInput<String, ConfirmPasswordValidationError> {
-  final String password;
+  final String confirmPassword;
 
-  const ConfirmPassword.pure({this.password = ''}) : super.pure('');
-  const ConfirmPassword.dirty({required this.password, String value = ''}) : super.dirty(value);
+  const ConfirmPassword.pure({this.confirmPassword = ''}) : super.pure('');
+  const ConfirmPassword.dirty({required this.confirmPassword, String password = ''}) : super.dirty(password);
 
   String? get errorMessage{
     if(isValid || isPure) return null;
@@ -17,7 +17,7 @@ class ConfirmPassword extends FormzInput<String, ConfirmPasswordValidationError>
   }
 
   @override
-  ConfirmPasswordValidationError? validator(String value) {
-    return password == value ? null : ConfirmPasswordValidationError.mismatch;
+  ConfirmPasswordValidationError? validator(String password) {
+    return confirmPassword == password ? null : ConfirmPasswordValidationError.mismatch;
   }
 }
