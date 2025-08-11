@@ -1,6 +1,6 @@
 import 'package:formz/formz.dart';
 
-enum ConfirmPasswordValidationError { mismatch }
+enum ConfirmPasswordValidationError {isEmpty, mismatch }
 
 class ConfirmPassword extends FormzInput<String, ConfirmPasswordValidationError> {
   final String confirmPassword;
@@ -11,6 +11,7 @@ class ConfirmPassword extends FormzInput<String, ConfirmPasswordValidationError>
   String? get errorMessage{
     if(isValid || isPure) return null;
 
+    if(displayError == ConfirmPasswordValidationError.isEmpty) return 'El campo es requerido';
     if(displayError == ConfirmPasswordValidationError.mismatch) return 'Las contraseñas no coinciden';
 
     return null;
@@ -18,6 +19,8 @@ class ConfirmPassword extends FormzInput<String, ConfirmPasswordValidationError>
 
   @override
   ConfirmPasswordValidationError? validator(String password) {
-    return confirmPassword == password ? null : ConfirmPasswordValidationError.mismatch;
+    if(confirmPassword != password) return ConfirmPasswordValidationError.mismatch;
+    if(password.isEmpty) return ConfirmPasswordValidationError.isEmpty;
+    return null;
   }
 }

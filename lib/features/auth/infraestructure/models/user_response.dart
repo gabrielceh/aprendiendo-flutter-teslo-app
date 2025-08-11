@@ -23,7 +23,7 @@ class UserResponse {
         fullName: json["fullName"],
         isActive: json["isActive"],
         roles: List<String>.from(json["roles"].map((x) => x)),
-        token: json["token"],
+        token: json["token"] ?? '',
     );
 
 }
