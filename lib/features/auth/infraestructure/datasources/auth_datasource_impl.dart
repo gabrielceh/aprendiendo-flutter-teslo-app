@@ -33,7 +33,6 @@ class AuthDataSourceImpl extends AuthDataSource {
       );
 
       final user = _fromJsonToUser(response.data);
-      print(user);
       return user;
     } on DioException catch (e) {
       if(e.response?.statusCode == 401) {

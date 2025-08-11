@@ -68,10 +68,11 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
       return;
     }
 
-    state.copyWith(
+
+    state = state.copyWith(
       isLastPage: false,
       isLoading: false,
-      offset: state.offset + 1,
+      offset: state.offset + 10,
       products: [...state.products, ...products],
     );
 
