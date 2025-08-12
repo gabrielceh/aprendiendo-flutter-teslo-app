@@ -11,6 +11,8 @@ class AuthDataSourceImpl extends AuthDataSource {
       baseUrl: Environment.apiUrl,
       headers: {
         'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true', // solo para develop y usar ngrok para el cel
+
       },
     ),
   );

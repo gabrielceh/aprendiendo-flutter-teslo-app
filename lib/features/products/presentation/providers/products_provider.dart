@@ -5,9 +5,9 @@ import 'products_repository_provider.dart';
 
 // ! 3 - crear el StateNotifierProvider
 final productsProvider = StateNotifierProvider<ProductsNotifier, ProductsState>((ref) {
-  final productRepository = ref.watch(productsRepositoryProvider);
+  final productsRepository = ref.watch(productsRepositoryProvider);
 
-  return ProductsNotifier(productRepository: productRepository);
+  return ProductsNotifier(productsRepository: productsRepository);
 });
 
 // ! 1 - crear el State
@@ -46,19 +46,39 @@ class ProductsState{
 
 // ! 2 - crear el Notifier
 class ProductsNotifier extends StateNotifier<ProductsState> {
-  final ProductsRepository productRepository;
+  final ProductsRepository productsRepository;
 
   ProductsNotifier({
-    required  this.productRepository
+    required  this.productsRepository
   }):super(ProductsState()){
     loadNextPage();
   }
+
+    Future<bool> createrOrUpdateProduct(Map<String, dynamic> productLike) async {
+    try {
+      final product = await productsRepository.createUpdateProduct(productLike);
+      final isProductInList = state.products.any((prod)=> prod.id == product.id);
+      if(!isProductInList){
+        state = state.copyWith(
+          products: [product, ...state.products],
+        );
+        return true;
+      }
+      state = state.copyWith(
+        products: state.products.map((el)=> el.id == product.id ? product : el).toList(),
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
 
   Future<void> loadNextPage() async {
     if(state.isLoading || state.isLastPage) return;
 
     state = state.copyWith(isLoading: true);
-    final products = await productRepository.getProductsByPage(limit: state.limit,offset: state.offset);
+    final products = await productsRepository.getProductsByPage(limit: state.limit,offset: state.offset);
 
     if(products.isEmpty){
       state = state.copyWith(

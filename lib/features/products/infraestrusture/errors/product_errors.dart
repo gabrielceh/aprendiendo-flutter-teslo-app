@@ -1,0 +1,1 @@
+class ProductNotFoundError implements Exception {}

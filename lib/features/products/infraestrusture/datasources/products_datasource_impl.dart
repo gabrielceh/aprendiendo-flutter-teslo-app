@@ -3,6 +3,7 @@ import 'package:teslo_app/config/config.dart';
 import 'package:teslo_app/features/products/domain/domain.dart';
 import 'package:teslo_app/features/products/infraestrusture/mappers/product_mapper.dart';
 
+import '../errors/product_errors.dart';
 import '../models/product_response.dart';
 
 class ProductsDataSourceImpl extends ProductsDataSource {
@@ -18,6 +19,8 @@ class ProductsDataSourceImpl extends ProductsDataSource {
       headers: {
         'Authorization': 'Bearer $accessToken',
         'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true', // solo para develop y usar ngrok para el cel
+
       },
     ),
   );
@@ -30,14 +33,43 @@ class ProductsDataSourceImpl extends ProductsDataSource {
 
   @override
   Future<Product> createUpdateProduct(Map<String, dynamic> productLike) async{
-    // TODO: implement createUpdateProduct
-    throw UnimplementedError();
+    try {
+      final String? productId = productLike['id'];
+      String method = (productId == null) ? 'POST' : 'PATCH';
+      final String url = (productId == null) ? '/products' : '/products/$productId';
+      productLike.remove('id');
+
+      final response = await dio.request(
+        url,
+        data: productLike,
+        options: Options(
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final product = _fromJsonToProduct(response.data);
+      return product;
+    } catch (e) {
+      throw Exception();
+    }
   }
 
   @override
   Future<Product> getProductByID(String id)async {
-    // TODO: implement getProductByID
-    throw UnimplementedError();
+    try {
+      final response = await dio.get('/products/$id');
+      return _fromJsonToProduct(response.data);
+      
+    }on DioException catch (e) {
+      if(e.response?.statusCode == 404) throw ProductNotFoundError();
+      throw Exception();
+    }
+     catch (e) {
+      throw Exception();
+    }
   }
 
   @override
