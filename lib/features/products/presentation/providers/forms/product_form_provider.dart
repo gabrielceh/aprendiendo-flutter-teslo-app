@@ -6,8 +6,6 @@ import 'package:teslo_app/features/products/presentation/providers/providers.dar
 import 'package:teslo_app/features/shared/shared.dart';
 import 'package:teslo_app/features/products/domain/domain.dart';
 
-import '../products_repository_provider.dart';
-
 
 // ! 3 - StateNotifierProvider
 final productFormProvider = StateNotifierProvider.autoDispose.family<ProductFormNotifier, ProductFormState, Product>((ref, product) {
@@ -26,6 +24,7 @@ final productFormProvider = StateNotifierProvider.autoDispose.family<ProductForm
 
 class ProductFormState {
   final bool isFormValid;
+  final bool isFormSending;
   final String? id;
   final Title title;
   final Slug slug;
@@ -39,6 +38,7 @@ class ProductFormState {
 
   const ProductFormState({
     this.isFormValid = false,
+    this.isFormSending = false,
     this.id,
     this.title = const Title.pure(),
     this.slug = const Slug.pure(),
@@ -53,6 +53,7 @@ class ProductFormState {
 
   ProductFormState copyWith({
     bool? isFormValid,
+    bool? isFormSending,
     String? id,
     Title? title,
     Slug? slug,
@@ -66,6 +67,7 @@ class ProductFormState {
   }){
     return ProductFormState(
       isFormValid : isFormValid ?? this.isFormValid,
+      isFormSending : isFormSending ?? this.isFormSending,
       id : id ?? this.id,
       title : title ?? this.title,
       slug : slug ?? this.slug,
@@ -111,6 +113,8 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 
     if(onSubmitCallback == null) return false;
 
+    state = state.copyWith(isFormSending: true);
+
     final productLike = {
       'id': (state.id == 'new') ? null : state.id,  
       'title': state.title.value,
@@ -131,6 +135,8 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     } catch (e) {
       return false;
       
+    }finally{
+      state = state.copyWith(isFormSending: false);  
     }
   }
 
@@ -142,6 +148,12 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
         state.price, 
         state.inStock, 
       ]),
+    );
+  }
+
+  void updateProductImage(String path){
+    state = state.copyWith(
+      images: [path, ...state.images ],
     );
   }
 
