@@ -30,6 +30,36 @@ class ProductsDataSourceImpl extends ProductsDataSource {
     return ProductMapper.jsonToEntity(productResponse);
   }
 
+  Future<String> _uploadFile(String path) async {
+    try {
+      final fileName = path.split('/').last;// obtenemos el nombre del archivo + extension
+      final FormData data =  FormData.fromMap({
+        'file': MultipartFile.fromFileSync(path, filename: fileName), // 'file' nombre del campo que pide el backend
+      });
+      final response = await dio.post('/files/product', data: data);
+
+      return response.data['image'];
+
+    } catch (e) {
+      throw Exception();
+    }
+  }
+
+  Future <List<String>> _uploadImages(List<String> photos) async {
+    final photosToUpload = photos.where((photo)=> photo.contains('/data')).toList();
+    final photosToIgnore = photos.where((photo)=> !photo.contains('/data')).toList();
+
+    // crear futures para cada imagen
+    final List<Future<String>> uploadJob = photosToUpload.map((e) => _uploadFile(e)).toList();
+
+    // Ejecuta todas las tareas de la lista en paralelo (no espera que una termine antes de iniciar la siguiente).
+    // Devuelve un solo Future que se completa cuando todas las tareas terminan.
+    // Ese Future final resuelve en una lista con los resultados en el mismo orden que la lista original.
+    final newImages = await Future.wait(uploadJob);
+
+    return [...newImages, ...photosToIgnore];
+  }
+
 
   @override
   Future<Product> createUpdateProduct(Map<String, dynamic> productLike) async{
@@ -38,6 +68,8 @@ class ProductsDataSourceImpl extends ProductsDataSource {
       String method = (productId == null) ? 'POST' : 'PATCH';
       final String url = (productId == null) ? '/products' : '/products/$productId';
       productLike.remove('id');
+
+      productLike['images'] = await _uploadImages(productLike['images']);
 
       final response = await dio.request(
         url,

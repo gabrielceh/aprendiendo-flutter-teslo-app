@@ -18,6 +18,7 @@ class CameraGalleryServiceImpl extends CameraGalleryService {
 
     if(photo == null) return null;
     print('Photo path: ${photo.path}');
+    // el path de las imagenes es un lugar temporal donde se guardan las imágenes dentro del dispositivo
     return photo.path;
   }
 
